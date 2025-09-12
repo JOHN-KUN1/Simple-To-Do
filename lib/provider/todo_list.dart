@@ -8,6 +8,7 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
     void addTodo(Todo todo){
         state = [...state, todo];
     }
+    
 
 }
 

@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do/model/todo.dart';
+import 'package:to_do/provider/todo_list.dart';
 
-class NewTodo extends StatefulWidget {
+class NewTodo extends ConsumerStatefulWidget {
   const NewTodo({super.key});
 
   @override
-  State<NewTodo> createState() {
+  ConsumerState<NewTodo> createState() {
     return _NewTodoState();
   }
 }
 
-class _NewTodoState extends State<NewTodo> {
-  final todoController = TextEditingController();
+class _NewTodoState extends ConsumerState<NewTodo> {
+  final _todoController = TextEditingController();
+  TaskPriority _selection = TaskPriority.low;
 
   @override
   void dispose() {
-    todoController.dispose();
+    _todoController.dispose();
     super.dispose();
+  }
+
+  void _onSubmit(){
+    final todo = Todo(title: _todoController.text, priority: _selection);
+    ref.read(allTodos.notifier).addTodo(todo);
+    Navigator.pop(context);
   }
 
   @override
@@ -41,7 +50,7 @@ class _NewTodoState extends State<NewTodo> {
                   child: TextField(
                     decoration: const InputDecoration(label: Text('New Todo')),
                     autocorrect: true,
-                    controller: todoController,
+                    controller: _todoController,
                   ),
                 ),
               ],
@@ -52,9 +61,12 @@ class _NewTodoState extends State<NewTodo> {
             padding: const EdgeInsets.only(left: 10),
             child: DropdownMenu(
               onSelected: (value) {
-                print('----------------------heyyy');
+                if(value == null){
+                  return;
+                }
+                _selection = value;
               },
-              initialSelection: TaskPriority.low,
+              initialSelection: _selection,
               dropdownMenuEntries: TaskPriority.values.map((p) {
                 var icon = const Icon(
                   Icons.circle,
@@ -87,7 +99,7 @@ class _NewTodoState extends State<NewTodo> {
               children: [
                 TextButton(onPressed: () {}, child: const Text('Clear')),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _onSubmit,
                   style: ElevatedButton.styleFrom(
                     elevation: 4,
                     backgroundColor: const Color.fromARGB(255, 163, 132, 216),
