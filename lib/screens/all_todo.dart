@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do/model/todo.dart';
 import 'package:to_do/provider/todo_list.dart';
 import 'package:to_do/screens/new_todo.dart';
 
@@ -12,6 +13,15 @@ class AllTodo extends ConsumerStatefulWidget {
 
 class _AllTodoState extends ConsumerState<AllTodo> {
   bool isChecked = false;
+  Future<List<Todo>>? loadedTodos;
+  
+
+  @override
+  void initState() {
+    final loadedTodos = ref.read(allTodos.notifier).loadAllTodos();
+    super.initState();
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +33,7 @@ class _AllTodoState extends ConsumerState<AllTodo> {
       ),
     );
 
-    if (todoList.isNotEmpty) {
+    if (todoList.isNotEmpty){
       content = ListView.builder(
         itemCount: todoList.length,
         itemBuilder: (context, index) {
@@ -52,7 +62,8 @@ class _AllTodoState extends ConsumerState<AllTodo> {
                     ),
                   ),
                   value: todoList[index].isCompleted,
-                  onChanged: (value) {
+                  onChanged: (value) async {
+                    await ref.read(allTodos.notifier).updateTodo(todoList[index], value!);
                     setState(() {
                       todoList[index].isCompleted = value!;
                     });
