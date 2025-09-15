@@ -71,6 +71,17 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
 
     database.update('newtodos', todoMap,where: 'id = ?', whereArgs: [todo.id]);
   }
+
+  Future<void> deleteTodo(String todoId) async {
+    state = state.where((p){
+      return p.id != todoId;
+    }).toList();
+    
+    final database = await getDatabase();
+
+    await database.delete('newtodos', where: 'id = ?', whereArgs: [todoId]);
+
+  }
 }
 
 final allTodos = StateNotifierProvider<TodoListNotifier, List<Todo>>((ref) {
